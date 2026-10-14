@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>الواجبات الجامعية - المرحلة الثانية</title>
+    <!-- Google Fonts & Font Awesome -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <canvas id="confetti-canvas"></canvas>
+    <div id="toast-container"></div>
+
+    <header>
+        <div class="header-content">
+            <div>
+                <h1><i class="fas fa-graduation-cap"></i> الواجبات الجامعية</h1>
+                <h2>المرحلة الثانية</h2>
+            </div>
+            <button class="theme-toggle-btn" id="theme-toggle" title="تغيير المظهر">
+                <i class="fas fa-moon"></i>
+            </button>
+        </div>
+    </header>
+
+    <main>
+        <!-- Dashboard Statistics -->
+        <section class="dashboard">
+            <div class="stat-card">
+                <h3><i class="fas fa-tasks"></i> الواجبات القادمة</h3>
+                <p id="upcoming-count">0</p>
+            </div>
+            <div class="stat-card">
+                <h3><i class="fas fa-chart-line"></i> نسبة الإنجاز</h3>
+                <p id="completion-rate">0%</p>
+                <div class="progress-bar-container">
+                    <div class="progress-bar-fill" id="progress-fill"></div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <h3><i class="fas fa-history"></i> متوسط التأخير</h3>
+                <p id="average-delay">--</p>
+            </div>
+            <div class="stat-card">
+                <h3><i class="fas fa-hourglass-half"></i> أقرب استحقاق</h3>
+                <p id="nearest-due" style="font-size: 0.95rem; line-height: 1.3;">لا يوجد حاليًا</p>
+            </div>
+        </section>
+
+        <!-- Main Content Grid -->
+        <div class="content-wrapper">
+
+            <!-- Left Panel: Form -->
+            <section class="panel" id="add-task-panel">
+                <h2 class="panel-title"><i class="fas fa-plus-circle"></i> إضافة واجب جديد</h2>
+                <form id="task-form">
+                    <div class="form-group">
+                        <label for="course-name">اسم المادة:</label>
+                        <input type="text" id="course-name" required placeholder="مثال: أساسيات البرمجة ++C">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="task-type">نوع الواجب:</label>
+                        <select id="task-type" required>
+                            <option value="">اختر النوع</option>
+                             <option value="project">مشروع</option>
+                            <option value="report">تقرير</option>
+                            <option value="homework">واجب بيتي</option>
+                            <option value="rephome">حل اسئلة واجبات</option>
+                            <option value="mid">امتحان المد</option>
+                            <option value="exam">امتحان قصير (Kwiz)</option>
+                            <option value="printm">طباعة المحاضرة</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="priority">الأولوية:</label>
+                        <select id="priority" required>
+                            <option value="high">عالية 🔥</option>
+                            <option value="medium" selected>متوسطة ⚡</option>
+                            <option value="low">منخفضة ☕</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group date-time-group">
+                        <div>
+                            <label for="due-date-picker">تاريخ محدد:</label>
+                            <input type="date" id="due-date-picker">
+                        </div>
+                        <div>
+                            <label for="due-day-select">أو يوم أسبوعي:</label>
+                            <select id="due-day-select">
+                                <option value="">اختياري</option>
+                                <option value="الأحد">الأحد</option>
+                                <option value="الاثنين">الاثنين</option>
+                                <option value="الثلاثاء">الثلاثاء</option>
+                                <option value="الأربعاء">الأربعاء</option>
+                                <option value="الخميس">الخميس</option>
+                                <option value="الجمعة">الجمعة</option>
+                                <option value="السبت">السبت</option>
+                            </select>
+                        </div>
+                        <div class="full-width">
+                            <label for="due-time">وقت التسليم:</label>
+                            <input type="time" id="due-time" value="08:00">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="reference-url"><i class="fas fa-link"></i> رابط مرجعي (اختياري):</label>
+                        <input type="url" id="reference-url" placeholder="https://drive.google.com/...">
+                    </div>
+
+                    <!-- Enhanced Live File Upload Zone -->
+                    <div class="form-group">
+                        <label><i class="fas fa-paperclip"></i> إرفاق ملف (صورة/PDF):</label>
+                        <div class="file-upload-zone" id="upload-zone">
+                            <input type="file" id="local-file" accept=".pdf, image/*">
+                            <div class="upload-placeholder">
+                                <i class="fas fa-cloud-upload-alt fa-lg"></i>
+                                <span>اضغط لاختيار ملف أو صورة</span>
+                            </div>
+                        </div>
+
+                        <!-- Live Attachment Preview Widget -->
+                        <div class="attachment-preview-box" id="attachment-preview-box">
+                            <img id="attachment-thumb" class="attachment-thumbnail" src="" alt="preview" style="display: none;">
+                            <div id="attachment-badge" class="attachment-icon-badge" style="display: none;"><i class="fas fa-file-pdf"></i></div>
+                            <div class="attachment-details">
+                                <p id="attachment-file-name">filename.pdf</p>
+                                <span id="attachment-file-size">0 KB</span>
+                            </div>
+                            <button type="button" class="remove-attachment-btn" id="remove-file-btn" title="حذف المرفق">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="notes">ملاحظات إضافية:</label>
+                        <textarea id="notes" rows="3" placeholder="أكتب تفاصيل الواجب هنا..."></textarea>
+                    </div>
+
+                    <button type="submit" class="btn-submit">
+                        <i class="fas fa-save"></i> حفظ الواجب
+                    </button>
+                </form>
+            </section>
+
+            <!-- Right Panel: Tasks List -->
+            <section class="panel" id="tasks-list-panel">
+                <div class="controls-bar">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="search-input" placeholder="بحث باسم المادة أو الملاحظات...">
+                    </div>
+                    <div class="filter-tabs">
+                        <button class="filter-tab active" data-filter="all">الكل</button>
+                        <button class="filter-tab" data-filter="pending">القادمة</button>
+                        <button class="filter-tab" data-filter="completed">المكتملة</button>
+                        <button class="filter-tab" data-filter="high">العالية</button>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="tasks-table">
+                        <thead>
+                            <tr>
+                                <th>المادة</th>
+                                <th>النوع</th>
+                                <th>موعد التسليم</th>
+                                <th>الأولوية</th>
+                                <th>الحالة</th>
+                                <th>الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tasks-container">
+                            <!-- Dynamically loaded -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div id="loading-spinner" class="loading-spinner">
+                    <i class="fas fa-spinner fa-spin fa-2x"></i>
+                    <p style="margin-top: 8px;">جاري المزامنة مع قاعدة البيانات...</p>
+                </div>
+
+                <div id="no-tasks-message" class="empty-state" style="display: none;">
+                    <i class="fas fa-folder-open"></i>
+                    <p>لا توجد واجبات مطابقة حالياً.</p>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Modal for Notes & References -->
+    <div id="notes-modal" class="modal">
+        <div class="modal-content">
+            <button class="close-btn" id="modal-close-btn">&times;</button>
+            <h3 id="modal-title" style="margin-bottom: 0.8rem; color: var(--primary);"></h3>
+            <div id="modal-body">
+                <p id="modal-notes-text" style="white-space: pre-wrap; line-height: 1.7; font-size: 0.9rem;"></p>
+                <div id="file-attachment-info" style="margin-top: 15px; display: none;">
+                    <hr style="border-color: var(--border-color); margin: 12px 0;">
+                    <p style="margin-bottom: 6px; font-size: 0.85rem;"><strong>الملف المرفق:</strong></p>
+                    <a id="download-link" class="btn-submit" download style="margin: 8px 0; text-decoration: none; max-width: 220px;">
+                        <i class="fas fa-download"></i> تحميل المرفق
+                    </a>
+                    <iframe id="file-preview" style="width: 100%; height: 320px; border: 1px solid var(--border-color); border-radius: 8px; margin-top: 8px; display: none;"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Confirm Delete Modal -->
+    <div id="delete-modal" class="modal">
+        <div class="modal-content" style="max-width: 380px; text-align: center;">
+            <div style="font-size: 2.5rem; color: var(--danger); margin-bottom: 0.4rem;">
+                <i class="fas fa-exclamation-circle"></i>
+            </div>
+            <h3 style="margin-bottom: 0.4rem;">تأكيد الحذف</h3>
+            <p style="color: var(--text-muted); margin-bottom: 1.25rem; font-size: 0.88rem;">هل أنت تأكد من رغبتك في حذف هذا الواجب بشكل نهائي؟</p>
+            <div style="display: flex; gap: 8px;">
+                <button id="confirm-delete-btn" class="btn-submit" style="background-color: var(--danger);">حذف</button>
+                <button id="cancel-delete-btn" class="btn-submit" style="background-color: var(--text-muted);">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; الموقع خاص بـ <strong>علي الطائي</strong> - جميع الحقوق محفوظة.</p>
+        <p><a href="https://www.ali-Altaee.free.nf" target="_blank">www.ali-Altaee.free.nf</a></p>
+    </footer>
+
+    <script type="module" src="script.js"></script>
+</body>
+
+</html>
